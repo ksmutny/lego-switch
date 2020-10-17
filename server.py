@@ -7,7 +7,7 @@ from PCA9685 import PCA9685
 pwm = PCA9685(0x40)
 pwm.setPWMFreq(50)
 
-initialsPositions = [1500, 1500, 1500, 1500,
+initial_positions = [1500, 1500, 1500, 1500,
                      1500, 1500, 1500, 1500,
                      1500, 1500, 1500, 1500,
                      1500, 1500, 1500, 1500]
@@ -16,9 +16,9 @@ DELTA_OFF = 220
 
 
 def initialize_servos():
-    global pwm
+    global pwm, initial_positions
     for id in range(0, 16):
-        pwm.setServoPulse(id, POS_INIT)
+        pwm.setServoPulse(id, initial_positions[id])
 
 
 class RequestHandler(BaseHTTPRequestHandler):
@@ -36,20 +36,17 @@ class RequestHandler(BaseHTTPRequestHandler):
         id = content['id']
 
         if 'calibrate' in content:
-            initials_positions[id] = content['calibrate']
-            self.set_switch_position(id, on = true)
+            initial_positions[id] = content['calibrate']
+            self.set_switch_position(id, on = True)
 
         if 'on' in content:
             self.set_switch_position(id, content['on'])
-
-        on = content['on']
-
 
         self.send_response(201)
         self.end_headers()
 
     def set_switch_position(self, id, on):
-        position = initials_positions[id] + (0 if on else DELTA_OFF)
+        position = initial_positions[id] + (0 if on else DELTA_OFF)
         print('Switch', id, 'on' if on else 'off', 'at position', position)
         pwm.setServoPulse(id, position)
 
