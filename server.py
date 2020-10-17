@@ -30,10 +30,10 @@ def run():
     port = 8000
     conf = ('', port)
     server = HTTPServer(conf, RequestHandler)
+    print('Started HTTP server at port', port)
 
     try:
         server.serve_forever()
-        print('Started HTTP server at port', port)
     except KeyboardInterrupt:
         pass
 
