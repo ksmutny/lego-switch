@@ -1,4 +1,4 @@
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from http.server import SimpleHTTPRequestHandler, HTTPServer
 import json
 
 from switch import calibrate_switch, set_switch_position, get_switch_position, Position
@@ -9,7 +9,7 @@ POSITION_VALUE = {
 }
 
 
-class RequestHandler(BaseHTTPRequestHandler):
+class RequestHandler(SimpleHTTPRequestHandler):
     def do_POST(self):
         command = self.validate_payload()
         if isinstance(command, str):
@@ -29,7 +29,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             set_switch_position(port, position)
             print('Switched', port, 'to', position)
 
-        self.send_response(201)
+        self.send_response(201, get_switch_position(port))
         self.end_headers()
 
 
@@ -41,8 +41,6 @@ class RequestHandler(BaseHTTPRequestHandler):
             return 'Not JSON payload'
 
         content = json.loads(self.rfile.read(content_length))
-
-        print(content)
 
         if 'port' not in content or not isinstance(content['port'], int):
             return 'Missing "port" attribute, or "port" not a number.'
